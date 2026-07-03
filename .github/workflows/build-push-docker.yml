@@ -31,6 +31,12 @@ on:
 
       dockerhub-password:
         required: true
+
+      # This below token is required if you want to checkout a repo other than the one which runs this github actions workflow
+      # for eg, if test-backend repo uses it to checkout its own repo test-backend, its not needed, if the repo test-backend
+      # wants to checkout another repo i.e node-todo-cicd, the actions/checkout will need a github-PAT for that repo, even if its public
+      repo-pat-token:
+        required: false
         
 
 
@@ -44,10 +50,14 @@ jobs:
         with:
           repository:  ${{ inputs.repo-name || github.repository }} 
           ref: ${{ inputs.repo-branch || github.ref }}
+          # Tell checkout to use the PAT token if provided
+          token: ${{ secrets.repo-pat-token || github.token }}
+
           
       - name: Build Docker Image
         working-directory: ${{ inputs.dockerfile-dir || '.' }}
         run: docker build -t ${{ inputs.docker-image-name }}:${{ inputs.docker-image-tag || 'latest' }} .
+
 
       - name: Docker Image Tag
         run: docker tag ${{ inputs.docker-image-name }}:${{ inputs.docker-image-tag || 'latest' }} ${{ secrets.dockerhub-username }}/${{ inputs.docker-image-name }}:${{ inputs.docker-image-tag || 'latest' }}
