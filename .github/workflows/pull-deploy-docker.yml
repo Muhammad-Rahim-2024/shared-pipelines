@@ -1,0 +1,73 @@
+name: Shared Pipeline - Pull Image from Docker and Deploy/Run
+
+on:
+  workflow_call:
+
+    inputs:
+      docker-image-name:
+        required: true
+        type: string
+
+      docker-image-tag:
+        required: false
+        type: string
+        default: 'latest'
+
+      machine-port:
+        required: true
+        type: string
+        
+      container-port:
+        required: true
+        type: string
+        
+
+    secrets:
+      dockerhub-username:
+        required: true
+
+      dockerhub-password:
+        required: true
+      
+      ssh-host:
+        required: true
+
+      ssh-username:
+        required: true
+
+      ssh-key:
+        required: true
+      
+
+jobs:
+  pull-deploy-docker:
+    runs-on: ubuntu-latest
+
+
+    steps:
+      - name: Authenticate, Pull, and Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.ssh-host }}
+          username: ${{ secrets.ssh-username }}
+          key: ${{ secrets.ssh-key }}
+          script_stop: true
+          script: |
+            echo "Logging in to Dockerhub from Cloud VPS"
+            echo ${{secrets.dockerhub-password}} | docker login -u ${{secrets.dockerhub-username}} --password-stdin
+            
+            echo "Pulling fresh Docker Image"
+            docker pull ${{secrets.dockerhub-username}}/${{inputs.docker-image-name}}:${{inputs.docker-image-tag}}
+
+            echo "Stopping and clearing old container (if running)..."
+            docker stop ${{ inputs.docker-image-name }} || true
+            docker rm ${{ inputs.docker-image-name }} || true
+
+
+            echo "Deploying and Running the new Container"
+            docker run -d --name ${{inputs.docker-image-name}} -p ${{inputs.machine-port}}:${{inputs.container-port}} ${{ secrets.dockerhub-username }}/${{ inputs.docker-image-name }}:${{ inputs.docker-image-tag}}
+            
+
+            
+      
+
