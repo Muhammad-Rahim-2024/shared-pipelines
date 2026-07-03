@@ -3,6 +3,15 @@ name: Shared Build Pipeline
 on:
   workflow_call:
 
+    inputs:
+      project-name:
+        required: true
+        type: string
+
+      date:
+        required: false
+        type: string
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -23,7 +32,7 @@ jobs:
 
       - name: Simulate a Build
         run: |
-          echo "Building Project ..."
+          echo "Building ${{ inputs.project-name }} on Date: ${{ inputs.date }}} ..."
           sleep 5
           echo "Build Complete!"
           
