@@ -63,6 +63,6 @@ jobs:
       - name: Login to Dockerhub using Input/Variables
         run: |
           echo "Logging in to Dockerhub using Input/Variables"
-          echo "${{ inputs.dockerhub-password-input }}" | docker login -u "${{ inputs.dockerhub-username-input }}" --password-stdin
+          echo "${{ secrets.dockerhub-password }}" | docker login -u "${{ inputs.dockerhub-username-input }}" --password-stdin
           echo "success"
           
