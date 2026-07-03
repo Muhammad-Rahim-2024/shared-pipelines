@@ -11,7 +11,6 @@ on:
       repo-branch:
         required: false
         type: string
-        default: 'main'
 
       dockerfile-dir:
         required: false
@@ -50,8 +49,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository:  ${{ inputs.repo-name || github.repository }} 
-          # ref: ${{ inputs.repo-branch || github.ref_name }}
-          ref: ${{ inputs.repo-branch }}
+          ref: ${{ inputs.repo-branch || github.ref_name }}
+          # ref: ${{ inputs.repo-branch }}
           # Tell checkout to use the PAT token if provided
           token: ${{ secrets.repo-pat-token || github.token }}
 
