@@ -1,0 +1,63 @@
+name: Shared Pipelinec- Build Docker Image and Push to Dockerhub
+
+on:
+  workflow_call:
+
+    inputs:
+      repo-name:
+        required: false
+        type: string
+
+      repo-branch:
+        required: false
+        type: string
+
+      dockerfile-dir:
+        required: false
+        type: string
+      
+      docker-image-name:
+        required: true
+        type: string
+
+      docker-image-tag:
+        required: false
+        type: string
+
+
+    secrets:
+      dockerhub-username:
+        required: true
+
+      dockerhub-password:
+        required: true
+        
+
+
+jobs:
+  build-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout your desired repo, Default is current.
+        uses: actions/checkout@v4
+        with:
+          repository:  ${{ inputs.repo-name || github.repository }} 
+          ref: ${{ inputs.repo-branch || github.ref }}
+          
+      - name: Build Docker Image
+        working-directory: ${{ inputs.dockerfile-dir || '.' }}
+        run: docker build -t ${{ inputs.docker-image-name }}:${{ inputs.docker-image-tag || 'latest' }} .
+
+      - name: Docker Image Tag
+        run: docker tag ${{ inputs.docker-image-name }}:${{ inputs.docker-image-tag || 'latest' }} ${{ secrets.dockerhub-username }}/${{ inputs.docker-image-name }}:${{ inputs.docker-image-tag || 'latest' }}
+        
+
+      - name: Push to Dockerhub
+        run: |
+          echo "Logging in to Dockerhub using Secrets"
+          echo "${{ secrets.dockerhub-password }}" | docker login -u "${{ secrets.dockerhub-username }}" --password-stdin
+          echo "login success"
+          docker push ${{ secrets.dockerhub-username }}/${{ inputs.docker-image-name }}:${{ inputs.docker-image-tag || 'latest' }}
+
+        
