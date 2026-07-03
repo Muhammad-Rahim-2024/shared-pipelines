@@ -9,7 +9,7 @@ on:
         type: string
 
       repo-branch:
-        required: false
+        required: true
         type: string
 
       dockerfile-dir:
@@ -48,9 +48,12 @@ jobs:
       - name: Checkout your desired repo, Default is current.
         uses: actions/checkout@v4
         with:
-          repository:  ${{ inputs.repo-name || github.repository }} 
-          ref: ${{ inputs.repo-branch || github.ref_name }}
-          # ref: ${{ inputs.repo-branch }}
+          repository:  ${{ inputs.repo-name || github.repository }}
+          # Dont use ref_name here, because lets say your repo "test-backend" is using this workflow on its branch main, but that repo "test-backend"
+          # is calling checkout on another repo "node-todo" which uses branch "master", so this ref_name will use the "test-bakend" repo branch name
+          # which is main because that is the repo which is running this workflow using the shared pipeline, so ALWAYS GIVE BRANCH NAME manually.
+          # ref: ${{ inputs.repo-branch || github.ref_name }}
+          ref: ${{ inputs.repo-branch }}
           # Tell checkout to use the PAT token if provided
           token: ${{ secrets.repo-pat-token || github.token }}
 
