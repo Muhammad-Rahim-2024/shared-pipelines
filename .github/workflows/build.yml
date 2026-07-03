@@ -12,6 +12,14 @@ on:
         required: false
         type: string
 
+
+    secrets:
+      dockerhub-username:
+        required: true
+
+      dockerhub-password:
+        required: true  
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -32,8 +40,15 @@ jobs:
 
       - name: Simulate a Build
         run: |
-          echo "Building ${{ inputs.project-name }} on Date: ${{ inputs.date }}} ..."
+          echo "Building ${{ inputs.project-name }} on Date: ${{ inputs.date }} ..."
           sleep 5
           echo "Build Complete!"
+
+
+      - name: Login to Dockerhub
+        run: |
+          echo "Logging in to Dockerhub"
+          echo "${{ secrets.dockerhub-password }}" | docker login -u "${{ secrets.dockerhub-username }}" --password-stdin
+          echo "login success"
           
 
