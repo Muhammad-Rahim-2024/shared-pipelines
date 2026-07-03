@@ -16,9 +16,6 @@ on:
         required: true
         type: string
 
-      dockerhub-password-input:
-        required: true
-        type: string
 
 
     secrets:
