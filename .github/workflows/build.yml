@@ -12,6 +12,14 @@ on:
         required: false
         type: string
 
+      dockerhub-username-input:
+        required: true
+        type: string
+
+      dockerhub-password-input:
+        required: true
+        type: string
+
 
     secrets:
       dockerhub-username:
@@ -45,10 +53,16 @@ jobs:
           echo "Build Complete!"
 
 
-      - name: Login to Dockerhub
+      - name: Login to Dockerhub using Secrets
         run: |
-          echo "Logging in to Dockerhub"
+          echo "Logging in to Dockerhub using Secrets"
           echo "${{ secrets.dockerhub-password }}" | docker login -u "${{ secrets.dockerhub-username }}" --password-stdin
           echo "login success"
           
 
+      - name: Login to Dockerhub using Input/Variables
+        run: |
+          echo "Logging in to Dockerhub using Input/Variables"
+          echo "${{ inputs.dockerhub-password-input }}" | docker login -u "${{ inputs.dockerhub-username-input }}" --password-stdin
+          echo "success"
+          
